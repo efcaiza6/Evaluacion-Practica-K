@@ -1,0 +1,126 @@
+<main class="page" [class.dark]="darkMode">
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Evaluacion full stack</p>
+      <h1>Gestion de tareas</h1>
+    </div>
+
+    <div class="topbar-actions">
+      <button type="button" class="ghost" (click)="toggleDarkMode()">
+        {{ darkMode ? 'Modo claro' : 'Modo oscuro' }}
+      </button>
+      <button type="button" class="ghost" *ngIf="hasToken" (click)="logout()">Salir</button>
+    </div>
+  </header>
+
+  <section class="alert success" *ngIf="message">{{ message }}</section>
+  <section class="alert error" *ngIf="error">{{ error }}</section>
+
+  <section class="login" *ngIf="!hasToken">
+    <form [formGroup]="loginForm" (ngSubmit)="login()">
+      <input formControlName="usuario" placeholder="Usuario">
+      <input formControlName="password" type="password" placeholder="Contrasena">
+      <button type="submit">Ingresar</button>
+    </form>
+  </section>
+
+  <section class="layout">
+    <article class="panel">
+      <h2>{{ editingTaskId ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+      <form [formGroup]="taskForm" (ngSubmit)="saveTask()" class="form">
+        <label>
+          Titulo
+          <input formControlName="titulo" placeholder="Ej. Revisar API">
+        </label>
+
+        <label>
+          Descripcion
+          <textarea formControlName="descripcion" rows="3"></textarea>
+        </label>
+
+        <div class="form-row">
+          <label>
+            Fecha
+            <input type="date" formControlName="fecha">
+          </label>
+
+          <label>
+            Categoria
+            <select formControlName="categoryId">
+              <option [ngValue]="0">Seleccione</option>
+              <option *ngFor="let category of categories" [ngValue]="category.id">
+                {{ category.nombre }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" formControlName="completada">
+          Completada
+        </label>
+
+        <div class="actions">
+          <button type="submit">{{ editingTaskId ? 'Actualizar' : 'Crear' }}</button>
+          <button type="button" class="ghost" (click)="cancelTaskEdit()">Limpiar</button>
+        </div>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Categorias</h2>
+      <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()" class="category-form">
+        <input formControlName="nombre" placeholder="Nombre">
+        <button type="submit">{{ editingCategoryId ? 'Actualizar' : 'Agregar' }}</button>
+      </form>
+
+      <ul class="category-list">
+        <li *ngFor="let category of categories">
+          <span>{{ category.nombre }}</span>
+          <div>
+            <button type="button" class="link" (click)="editCategory(category)">Editar</button>
+            <button type="button" class="link danger" (click)="deleteCategory(category.id)">Eliminar</button>
+          </div>
+        </li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="tasks-header">
+    <div>
+      <p class="eyebrow">Listado</p>
+      <h2>Tareas registradas</h2>
+    </div>
+
+    <label>
+      Filtrar por categoria
+      <select [(ngModel)]="selectedCategoryId" (change)="loadTasks()">
+        <option [ngValue]="0">Todas</option>
+        <option *ngFor="let category of categories" [ngValue]="category.id">
+          {{ category.nombre }}
+        </option>
+      </select>
+    </label>
+  </section>
+
+  <section class="task-grid">
+    <article class="task-card" *ngFor="let task of tasks">
+      <div>
+        <span class="badge" [class.done]="task.completada">
+          {{ task.completada ? 'Completada' : 'Pendiente' }}
+        </span>
+        <h3>{{ task.titulo }}</h3>
+        <p>{{ task.descripcion || 'Sin descripcion' }}</p>
+      </div>
+
+      <footer>
+        <span>{{ task.fecha }} · {{ task.category.nombre }}</span>
+        <div>
+          <button type="button" class="link" (click)="editTask(task)">Editar</button>
+          <button type="button" class="link danger" (click)="deleteTask(task.id)">Eliminar</button>
+        </div>
+      </footer>
+    </article>
+  </section>
+</main>
+
